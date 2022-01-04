@@ -76,7 +76,7 @@ class PontoBD:
                 return -1
         else:
             ponto['tipo'] = 'saida'
-            validacao = f"select data from ponto where tipo = ''{ponto['tipo']}' ' and data = '{ponto['data']}'"
+            validacao = f"select data from ponto where tipo = '{ponto['tipo']}' and data = '{ponto['data']}'"
             test = self.getQuery(validacao)
             if len(test['data']) != 0:
                 return -1
@@ -85,23 +85,24 @@ class PontoBD:
         """.format(**ponto)
 
         self.executeCommand(insert)
+                
         return 0
     
     def horas(self):
         valid_date = """
-        select distinct data from ponto p
+        select distinct p.data from ponto p
         left join time_worked tw
         on p.data = tw.data
         where
             tw.data is null
         """
-        pontos = self.executeCommand(valid_date)
+        pontos = self.getQuery(valid_date)
 
         if len(pontos['data']) == 0:
             return -1
         
         for data in pontos['data']:
-            bd_query = f"select data, hora, tipo from ponto where dia = '{data}' order by tipo"
+            bd_query = f"select data, hora, tipo from ponto where data = '{data}' order by tipo"
             bd = self.getQuery(bd_query)
 
             if ('saida' in bd['tipo']) and ('entrada' in bd['tipo']):
@@ -124,7 +125,16 @@ class PontoBD:
         return 0
 
     def inserPonto(self, data, hora, tipo):
-        pass
+        test = f"select data from ponto where data = '{data}' and tipo = '{tipo}'"
+        test_insert = self.getQuery(test)
+        if len(test_insert['data']) > 0:
+            return -1
+        insert = f"""
+        insert into ponto(data, hora, tipo, forma) values ('{data}', '{hora}', '{tipo}', 'manual')
+        """
+        self.executeCommand(insert)
+        self.horas()
+        return 1
     
     def close(self):
         self.conn.close()
