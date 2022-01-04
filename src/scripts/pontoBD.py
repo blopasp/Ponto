@@ -1,4 +1,4 @@
-import sys, os
+import os
 import datetime as dt
 import locale, sqlite3
 
