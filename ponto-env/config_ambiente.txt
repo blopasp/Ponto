@@ -1,0 +1,3 @@
+python -m venv ponto-env
+C:\desenvolvimento\ponto\ponto-env\Scripts\activate. bat.
+source tutorial-env/bin/activate
